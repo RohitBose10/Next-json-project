@@ -1,101 +1,191 @@
-import Image from "next/image";
+"use client";
+import React, { useState, useEffect } from "react";
+import {
+  Container,
+  Typography,
+  Button,
+  Grid,
+  Card,
+  CardContent,
+} from "@mui/material";
+import { styled } from "@mui/system";
+import Link from "next/link";
+import SignupModal from "./auth/registration/page";
 
-export default function Home() {
+const HeroSection = styled("div")(({ theme }) => ({
+  background: "linear-gradient(135deg, #6A0DAD, #FF1493)",
+  color: "white",
+  textAlign: "center",
+  padding: "4rem 2rem",
+  borderRadius: "16px",
+  fontFamily: "'Roboto', sans-serif",
+}));
+
+const FeatureCard = styled(Card)(({ theme }) => ({
+  background: theme.palette.background.paper,
+  boxShadow: theme.shadows[4],
+  borderRadius: "16px",
+  transition: "transform 0.3s ease",
+  fontFamily: "'Roboto', sans-serif",
+  "&:hover": {
+    transform: "scale(1.05)",
+  },
+}));
+
+const StyledTypography = styled(Typography)(({ theme }) => ({
+  fontFamily: "'Roboto', sans-serif",
+  fontWeight: 400,
+  color: theme.palette.text.primary,
+}));
+
+export default function Homepage() {
+  const [isModalOpen, setIsModalOpen] = useState(false); // State to control the modal
+  const [userId, setUserId] = useState(null); // State to track if user is logged in
+
+  useEffect(() => {
+    // Get userId from localStorage on page load
+    const storedUserId = localStorage.getItem("userId");
+    setUserId(storedUserId);
+  }, []);
+
+  const handleOpenModal = () => setIsModalOpen(true); // Open modal
+  const handleCloseModal = () => setIsModalOpen(false); // Close modal
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <Container maxWidth="lg" className="py-10">
+      {/* Hero Section */}
+      <HeroSection>
+        <Typography variant="h2" gutterBottom style={{ fontWeight: 600 }}>
+          Track Your Habits, Transform Your Life
+        </Typography>
+        <Typography variant="h6" gutterBottom style={{ fontWeight: 300 }}>
+          Build healthy habits, stay consistent, and achieve your goals with
+          ease.
+        </Typography>
+        <div className="mt-6">
+          {/* Only show the button if user is not logged in */}
+          {!userId && (
+            <Button
+              variant="contained"
+              style={{
+                background: "linear-gradient(135deg, #A445B2, #D41872)",
+                fontWeight: 500,
+              }}
+              size="large"
+              onClick={handleOpenModal} // Open modal on click
+            >
+              Get Started
+            </Button>
+          )}
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+      </HeroSection>
+
+      {/* Features Section */}
+      <section className="my-16">
+        <StyledTypography
+          variant="h4"
+          align="center"
+          style={{ fontWeight: 600, color: "#A445B2" }}
+          gutterBottom
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+          Why Choose Our Habit Tracker?
+        </StyledTypography>
+        <Grid container spacing={4} className="mt-6">
+          {/* Feature Cards */}
+          <Grid item xs={12} md={4}>
+            <FeatureCard>
+              <CardContent>
+                <StyledTypography
+                  variant="h5"
+                  gutterBottom
+                  style={{ fontWeight: 500, color: "#D41872" }}
+                >
+                  Intuitive Dashboard
+                </StyledTypography>
+                <Typography variant="body1">
+                  Get a quick overview of your progress and stay on top of your
+                  goals.
+                </Typography>
+              </CardContent>
+            </FeatureCard>
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <FeatureCard>
+              <CardContent>
+                <StyledTypography
+                  variant="h5"
+                  gutterBottom
+                  style={{ fontWeight: 500, color: "#D41872" }}
+                >
+                  Flexible Habit Management
+                </StyledTypography>
+                <Typography variant="body1">
+                  Add, edit, and organize your habits effortlessly.
+                </Typography>
+              </CardContent>
+            </FeatureCard>
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <FeatureCard>
+              <CardContent>
+                <StyledTypography
+                  variant="h5"
+                  gutterBottom
+                  style={{ fontWeight: 500, color: "#D41872" }}
+                >
+                  Stay Motivated
+                </StyledTypography>
+                <Typography variant="body1">
+                  Visualize your progress and celebrate milestones along the
+                  way.
+                </Typography>
+              </CardContent>
+            </FeatureCard>
+          </Grid>
+        </Grid>
+      </section>
+
+      {/* Call to Action Section */}
+      <section
+        className="text-center py-12"
+        style={{
+          background: "linear-gradient(135deg, #6A0DAD, #FF1493)",
+          borderRadius: "20px",
+          fontFamily: "'Roboto', sans-serif",
+        }}
+      >
+        <Typography variant="h4" gutterBottom style={{ fontWeight: 600 }}>
+          {userId
+            ? "Thanks for Joining Thousands of Habit Trackers Like You!"
+            : "Ready to Take Control of Your Habits?"}
+        </Typography>
+        <Typography
+          variant="body1"
+          className="mb-6"
+          style={{ fontWeight: 300 }}
         >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+          {userId
+            ? "We’re thrilled to have you on board! Keep tracking and achieving your goals with ease."
+            : "Join thousands of users transforming their lives with our Habit Tracker."}
+        </Typography>
+        {/* Only show the button if user is not logged in */}
+        {!userId && (
+          <Button
+            variant="contained"
+            style={{
+              background: "linear-gradient(135deg, #A445B2, #D41872)",
+              fontWeight: 500,
+            }}
+            size="large"
+            onClick={handleOpenModal} // Open modal on click
+          >
+            Sign Up Now
+          </Button>
+        )}
+      </section>
+
+      {/* Signup Modal */}
+      <SignupModal isOpen={isModalOpen} onClose={handleCloseModal} />
+    </Container>
   );
 }
