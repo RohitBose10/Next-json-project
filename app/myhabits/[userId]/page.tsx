@@ -33,7 +33,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
-const HeroSection = styled("div")(({ theme }) => ({
+const HeroSection = styled("div")({
   background: "linear-gradient(135deg, #6A0DAD, #FF1493)",
   color: "white",
   textAlign: "center",
@@ -41,7 +41,7 @@ const HeroSection = styled("div")(({ theme }) => ({
   borderRadius: "16px",
   boxShadow: "0 4px 20px rgba(0, 0, 0, 0.2)",
   fontFamily: "'Roboto', sans-serif",
-}));
+});
 
 const CenteredButton = styled("div")(() => ({
   display: "flex",

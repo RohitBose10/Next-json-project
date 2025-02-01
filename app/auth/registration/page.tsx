@@ -7,6 +7,7 @@ import Modal from "@mui/material/Modal";
 import LoginModal from "../login/page";
 import { toast } from "react-toastify";
 import { useMutation } from "@tanstack/react-query";
+import Image from "next/image";
 
 export default function SignupModal({ isOpen, onClose }) {
   const [name, setName] = useState("");
@@ -148,9 +149,11 @@ export default function SignupModal({ isOpen, onClose }) {
                   className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border file:border-gray-300 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                 />
                 {profilePicture && (
-                  <img
+                  <Image
                     src={profilePicture}
                     alt="Preview"
+                    width={80}
+                    height={80}
                     className="mt-2 mx-auto w-20 h-20 object-cover rounded-full border"
                   />
                 )}

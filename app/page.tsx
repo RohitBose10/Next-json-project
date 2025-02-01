@@ -9,34 +9,33 @@ import {
   CardContent,
 } from "@mui/material";
 import { styled } from "@mui/system";
-import Link from "next/link";
 import SignupModal from "./auth/registration/page";
 
-const HeroSection = styled("div")(({ theme }) => ({
+const HeroSection = styled("div")({
   background: "linear-gradient(135deg, #6A0DAD, #FF1493)",
   color: "white",
   textAlign: "center",
   padding: "4rem 2rem",
   borderRadius: "16px",
   fontFamily: "'Roboto', sans-serif",
-}));
+});
 
-const FeatureCard = styled(Card)(({ theme }) => ({
-  background: theme.palette.background.paper,
-  boxShadow: theme.shadows[4],
+const FeatureCard = styled(Card)({
+  background: "#fff", // Assuming you want a white background, remove if unnecessary
+  boxShadow: 4,
   borderRadius: "16px",
   transition: "transform 0.3s ease",
   fontFamily: "'Roboto', sans-serif",
   "&:hover": {
     transform: "scale(1.05)",
   },
-}));
+});
 
-const StyledTypography = styled(Typography)(({ theme }) => ({
+const StyledTypography = styled(Typography)({
   fontFamily: "'Roboto', sans-serif",
   fontWeight: 400,
-  color: theme.palette.text.primary,
-}));
+  color: "#000", // Default text color
+});
 
 export default function Homepage() {
   const [isModalOpen, setIsModalOpen] = useState(false); // State to control the modal

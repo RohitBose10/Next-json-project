@@ -23,7 +23,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css"; // Import toast styles
 
 // Hero Section Styling
-const HeroSection = styled("div")(({ theme }) => ({
+const HeroSection = styled("div")({
   background: "linear-gradient(135deg, #6A0DAD, #FF1493)",
   color: "white",
   textAlign: "center",
@@ -31,45 +31,53 @@ const HeroSection = styled("div")(({ theme }) => ({
   borderRadius: "16px",
   boxShadow: "0 4px 20px rgba(0, 0, 0, 0.2)",
   position: "relative",
-}));
+});
 
 // Styled Typography
-const StyledHeading = styled(Typography)(({ theme }) => ({
+const StyledHeading = styled(Typography)({
   fontWeight: "bold",
   fontSize: "2.5rem",
   color: "#FFFFFF",
-}));
+});
 
-const StyledSubHeading = styled(Typography)(({ theme }) => ({
+const StyledSubHeading = styled(Typography)({
   fontWeight: "300",
   fontSize: "1.25rem",
   color: "rgba(255, 255, 255, 0.9)",
   fontStyle: "italic",
-}));
+});
 
-const SectionTitle = styled(Typography)(({ theme }) => ({
+const SectionTitle = styled(Typography)({
   fontWeight: "bold",
   fontSize: "1.75rem",
   color: "#1F2937",
-  marginBottom: theme.spacing(2),
-}));
+  marginBottom: "16px", // Adjusted to match theme spacing
+});
 
-const LabelText = styled(Typography)(({ theme }) => ({
+const LabelText = styled(Typography)({
   fontWeight: "600",
   fontSize: "1rem",
   color: "#374151",
-}));
+});
 
-const ValueText = styled(Typography)(({ theme }) => ({
+const ValueText = styled(Typography)({
   fontSize: "1rem",
   color: "#4B5563",
-}));
+});
 
+// Fetch user data with error handling
 const fetchUserData = async (id) => {
-  const response = await axios.get(`http://localhost:1000/users`);
-  return response.data.find((user) => user.id === id);
+  try {
+    const response = await axios.get("http://localhost:1000/users");
+    const user = response.data.find((user) => user.id === id);
+    if (!user) throw new Error("User not found");
+    return user;
+  } catch {
+    throw new Error("Failed to fetch user data");
+  }
 };
 
+// Update user data
 const updateUser = async (updatedUser) => {
   await axios.put(`http://localhost:1000/users/${updatedUser.id}`, updatedUser);
 };
@@ -78,6 +86,7 @@ export default function ProfilePage() {
   const { id } = useParams();
   const queryClient = useQueryClient();
 
+  // Ensure query is called unconditionally
   const {
     data: userData,
     isLoading,
@@ -170,7 +179,7 @@ export default function ProfilePage() {
 
         <StyledHeading>Welcome, {userData.name}!</StyledHeading>
         <StyledSubHeading>
-          "Your potential is endless. Keep striving!"
+          {"Your potential is endless. Keep striving!"}
         </StyledSubHeading>
       </HeroSection>
       {/* User Details Section */}
@@ -258,12 +267,14 @@ export default function ProfilePage() {
               style={{ display: "none" }}
               onChange={(e) => {
                 const file = e.target.files[0];
-                if (file) {
+                if (file && file.type.startsWith("image/")) {
                   const reader = new FileReader();
                   reader.onload = () => {
                     setFormData({ ...formData, profilePicture: reader.result });
                   };
                   reader.readAsDataURL(file);
+                } else {
+                  toast.error("Please upload a valid image file.");
                 }
               }}
             />

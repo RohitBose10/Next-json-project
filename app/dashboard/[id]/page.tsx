@@ -18,7 +18,16 @@ import { styled } from "@mui/system";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const HeroSection = styled("div")(({ theme }) => ({
+interface Habit {
+  id: string;
+  userId: string;
+  name: string;
+  description: string;
+  frequency: string;
+  timing: string;
+}
+
+const HeroSection = styled("div")({
   background: "linear-gradient(135deg, #6A0DAD, #FF1493)",
   color: "white",
   textAlign: "center",
@@ -26,38 +35,33 @@ const HeroSection = styled("div")(({ theme }) => ({
   borderRadius: "16px",
   boxShadow: "0 4px 20px rgba(0, 0, 0, 0.2)",
   fontFamily: "'Roboto', sans-serif",
-}));
+});
 
-const StyledCard = styled(Card)(({ theme }) => ({
+const StyledCard = styled(Card)(() => ({
   borderRadius: "16px",
-  boxShadow: theme.shadows[3],
+  boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
   transition: "transform 0.3s ease",
   "&:hover": {
     transform: "scale(1.05)",
   },
 }));
 
-const StyledTypography = styled(Typography)(({ theme }) => ({
+const StyledTypography = styled(Typography)(() => ({
   fontFamily: "'Roboto', sans-serif",
   fontWeight: 400,
 }));
 
 export default function DashboardPage() {
-  const { id } = useParams(); // Extract user ID from route
-  const [completedToday, setCompletedToday] = useState<string[]>([]); // Track completed habits
+  const { id } = useParams();
+  const [completedToday, setCompletedToday] = useState<string[]>([]);
 
-  // Fetch user habits with React Query
-  const {
-    data: userHabits = [],
-    isLoading,
-    isError,
-  } = useQuery({
+  const { data: userHabits = [], isLoading, isError } = useQuery({
     queryKey: ["userHabits", id],
     queryFn: async () => {
       const response = await axios.get("http://localhost:1000/userHabits");
-      return response.data.filter((habit: any) => habit.userId === id);
+      return response.data.filter((habit: Habit) => habit.userId === id);
     },
-    enabled: !!id, // Only run query if `id` is available
+    enabled: !!id,
   });
 
   const handleMarkDone = (habitId: string) => {
@@ -95,24 +99,15 @@ export default function DashboardPage() {
   return (
     <Container maxWidth="lg" className="py-10">
       <ToastContainer />
-      {/* Hero Section */}
       <HeroSection>
-        <Typography
-          variant="h3"
-          gutterBottom
-          style={{ fontWeight: 600, fontFamily: "'Roboto', sans-serif" }}
-        >
+        <Typography variant="h3" gutterBottom style={{ fontWeight: 600 }}>
           Welcome to Your Habit Dashboard
         </Typography>
-        <Typography
-          variant="h6"
-          style={{ fontWeight: 300, fontFamily: "'Roboto', sans-serif" }}
-        >
+        <Typography variant="h6" style={{ fontWeight: 300 }}>
           Track your progress, stay consistent, and achieve your goals!
         </Typography>
       </HeroSection>
 
-      {/* Overview Section */}
       <Grid container spacing={4} className="mt-6">
         <Grid item xs={12} md={4}>
           <StyledCard>
@@ -120,11 +115,7 @@ export default function DashboardPage() {
               <StyledTypography variant="h5" gutterBottom>
                 Total Habits
               </StyledTypography>
-              <Typography
-                variant="h3"
-                color="primary"
-                style={{ fontWeight: 600 }}
-              >
+              <Typography variant="h3" color="primary" style={{ fontWeight: 600 }}>
                 {userHabits.length}
               </Typography>
             </CardContent>
@@ -136,11 +127,7 @@ export default function DashboardPage() {
               <StyledTypography variant="h5" gutterBottom>
                 Habits Completed Today
               </StyledTypography>
-              <Typography
-                variant="h3"
-                color="error"
-                style={{ fontWeight: 600 }}
-              >
+              <Typography variant="h3" color="error" style={{ fontWeight: 600 }}>
                 {completedToday.length}
               </Typography>
             </CardContent>
@@ -152,11 +139,7 @@ export default function DashboardPage() {
               <StyledTypography variant="h5" gutterBottom>
                 Pending Habits
               </StyledTypography>
-              <Typography
-                variant="h3"
-                color="secondary"
-                style={{ fontWeight: 600 }}
-              >
+              <Typography variant="h3" color="secondary" style={{ fontWeight: 600 }}>
                 {userHabits.length - completedToday.length}
               </Typography>
             </CardContent>
@@ -164,37 +147,24 @@ export default function DashboardPage() {
         </Grid>
       </Grid>
 
-      {/* Habits Section */}
       <section className="mt-10">
         <StyledTypography
           variant="h4"
           gutterBottom
-          style={{
-            fontWeight: 600,
-            fontFamily: "'Roboto', sans-serif",
-            color: "#A445B2",
-          }}
+          style={{ fontWeight: 600, color: "#A445B2" }}
         >
           Your Habits
         </StyledTypography>
         {userHabits.length > 0 ? (
           <Grid container spacing={4}>
-            {userHabits.map((habit: any) => (
+            {userHabits.map((habit) => (
               <Grid item xs={12} md={6} lg={4} key={habit.id}>
                 <StyledCard>
                   <CardContent>
-                    <Typography
-                      variant="h6"
-                      color="primary"
-                      style={{ fontWeight: 500 }}
-                    >
+                    <Typography variant="h6" color="primary" style={{ fontWeight: 500 }}>
                       {habit.name}
                     </Typography>
-                    <Typography
-                      variant="body2"
-                      color="textSecondary"
-                      style={{ fontFamily: "'Roboto', sans-serif" }}
-                    >
+                    <Typography variant="body2" color="textSecondary">
                       {habit.description}
                     </Typography>
                     <Box mt={2}>
@@ -209,19 +179,13 @@ export default function DashboardPage() {
                   <CardActions>
                     <Button
                       variant="contained"
-                      color={
-                        completedToday.includes(habit.id)
-                          ? "default"
-                          : "primary"
-                      }
+                      color={completedToday.includes(habit.id) ? "success" : "primary"}
                       sx={{ mb: 1 }}
                       onClick={() => handleMarkDone(habit.id)}
                       disabled={completedToday.includes(habit.id)}
                       style={{ fontWeight: 500 }}
                     >
-                      {completedToday.includes(habit.id)
-                        ? "Done"
-                        : "Mark as Done"}
+                      {completedToday.includes(habit.id) ? "Done" : "Mark as Done"}
                     </Button>
                   </CardActions>
                 </StyledCard>
@@ -229,33 +193,11 @@ export default function DashboardPage() {
             ))}
           </Grid>
         ) : (
-          <Typography
-            variant="body2"
-            color="textSecondary"
-            style={{ fontFamily: "'Roboto', sans-serif" }}
-          >
+          <Typography variant="body2" color="textSecondary">
             No habits found. Start by adding your first habit!
           </Typography>
         )}
       </section>
-
-      {/* Motivational Section */}
-      <HeroSection className="mt-12">
-        <Typography
-          variant="h4"
-          gutterBottom
-          style={{ fontWeight: 600, fontFamily: "'Roboto', sans-serif" }}
-        >
-          Keep Going!
-        </Typography>
-        <Typography
-          variant="body1"
-          style={{ fontWeight: 300, fontFamily: "'Roboto', sans-serif" }}
-        >
-          Remember, small daily habits can lead to big changes over time. Stay
-          consistent and celebrate your progress!
-        </Typography>
-      </HeroSection>
     </Container>
   );
 }

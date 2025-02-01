@@ -1,4 +1,4 @@
-"use client";
+'use client'
 
 import { useState } from "react";
 import Link from "next/link";
@@ -8,11 +8,18 @@ import SignupModal from "../registration/page";
 import { toast } from "react-toastify";
 import { useQuery } from "@tanstack/react-query";
 
-export default function LoginModal({ isOpen, onClose }) {
+// Define the expected props for the LoginModal
+interface LoginModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [openSignupModal, setOpenSignupModal] = useState(false);
 
+  // Fetch users only when the modal is open
   const { data: users = [], error: fetchError, isLoading } = useQuery({
     queryKey: ["users"],
     queryFn: async () => {

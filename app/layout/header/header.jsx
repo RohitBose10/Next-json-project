@@ -12,9 +12,9 @@ import LoginModal from "@/app/auth/login/page";
 import SignupModal from "@/app/auth/registration/page";
 import { ToastContainer, toast } from "react-toastify"; // Import toastify
 import "react-toastify/dist/ReactToastify.css"; // Import the styles for toastify
+import Image from 'next/image'; // Import Image component for optimization
 
 const Navbar = () => {
-  const [isOpen, setIsOpen] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [showSignup, setShowSignup] = useState(false);
   const [userId, setUserId] = useState(null);
@@ -63,10 +63,13 @@ const Navbar = () => {
               href="/"
               className="flex items-center text-white text-2xl font-bold"
             >
-              <img
+              {/* Using Image component for optimized image */}
+              <Image
                 src="/assets/images/logo.png"
                 alt="Habit Tracker Logo"
-                className="h-12 w-35 mr-2 rounded-md border-2 border-white"
+                width={120} // Set appropriate width for the logo
+                height={120} // Set appropriate height for the logo
+                className="mr-2 rounded-md border-2 border-white"
               />
             </Link>
           </div>
@@ -168,6 +171,9 @@ const Navbar = () => {
       {/* Modals */}
       <LoginModal isOpen={showLogin} onClose={() => setShowLogin(false)} />
       <SignupModal isOpen={showSignup} onClose={() => setShowSignup(false)} />
+
+      {/* Add ToastContainer for toasts */}
+      <ToastContainer />
     </nav>
   );
 };
