@@ -7,27 +7,31 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "serve": "json-server database/db.json --port 1000"
+    "server": "json-server database/db.json --port 1000"
   },
   "dependencies": {
     "@emotion/react": "^11.13.5",
     "@emotion/styled": "^11.13.5",
+    "@eslint/config-array": "^0.19.2",
+    "@eslint/object-schema": "^2.1.6",
     "@mui/icons-material": "^6.1.10",
     "@mui/material": "^6.1.10",
     "@ngbmodule/material-carousel": "^0.7.2",
     "@tanstack/react-query": "^5.62.7",
     "@tanstack/react-query-devtools": "^5.62.7",
     "axios": "^1.7.9",
+    "glob": "^11.0.1",
     "next": "15.0.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-toastify": "^10.0.6"
+    "react-toastify": "^10.0.6",
+    "rimraf": "^6.0.1"
   },
   "devDependencies": {
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "eslint": "^8",
+    "eslint": "^9.19.0",
     "eslint-config-next": "15.0.4",
     "json-server": "^1.0.0-beta.3",
     "postcss": "^8",
