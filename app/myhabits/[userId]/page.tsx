@@ -64,16 +64,25 @@ const MyHabits = () => {
   const [isModalOpen, setModalOpen] = useState(false);
   const queryClient = useQueryClient();
   const API_URL = "http://localhost:1000/userHabits";
-  const [formErrors, setFormErrors] = useState({});
+  type FormErrors = {
+    name?: string;
+    description?: string;
+    frequency?: string;
+    timing?: string;
+  };
+
+  const [formErrors, setFormErrors] = useState<FormErrors>({});
 
   const validateForm = () => {
-    const errors = {};
+    const errors: Record<string, string> = {}; // Explicitly typed
+
     if (!formData.name.trim()) errors.name = "Habit Name is required.";
     if (!formData.description.trim())
       errors.description = "Description is required.";
     if (!formData.frequency.trim()) errors.frequency = "Frequency is required.";
     if (!formData.timing.trim() || isNaN(Number(formData.timing)))
       errors.timing = "Valid timing is required.";
+
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -82,13 +91,25 @@ const MyHabits = () => {
     queryKey: ["userHabits", userId],
     queryFn: async () => {
       const response = await axios.get(API_URL);
-      return response.data.filter((habit) => habit.userId === userId);
+      return response.data.filter(
+        (habit: { userId: string }) => habit.userId === userId
+      );
     },
     enabled: !!userId,
   });
 
+  type Habit = {
+    id: string;
+    name: string;
+    description: string;
+    frequency: string;
+    timing: string;
+    period: string;
+  };
+
   const mutation = useMutation({
-    mutationFn: async (newHabit) => {
+    mutationFn: async (newHabit: Habit) => {
+      // <-- Define newHabit's type
       const timingWithPeriod = `${newHabit.timing} ${newHabit.period}`;
       const dataToSend = { ...newHabit, timing: timingWithPeriod, userId };
 
@@ -105,7 +126,8 @@ const MyHabits = () => {
     },
     onSuccess: () => {
       resetForm();
-      queryClient.invalidateQueries(["userHabits", userId]);
+      queryClient.invalidateQueries({ queryKey: ["userHabits", userId] });
+
       setModalOpen(false);
     },
     onError: () => {
@@ -114,11 +136,12 @@ const MyHabits = () => {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: async (id) => {
+    mutationFn: async (id: string) => {
+      // Ensure `id` is a string
       await axios.delete(`${API_URL}/${id}`);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(["userHabits", userId]);
+      queryClient.invalidateQueries({ queryKey: ["userHabits", userId] });
       toast.success("Habit deleted successfully!");
     },
     onError: () => {
@@ -126,9 +149,18 @@ const MyHabits = () => {
     },
   });
 
-  const handleEdit = (habit) => {
+  const handleEdit = (habit: Habit) => {
     const [timing, period] = habit.timing.split(" ");
-    setFormData({ ...habit, timing, period });
+
+    setFormData({
+      id: habit.id ?? "", // Ensure id is always a string
+      name: habit.name,
+      description: habit.description,
+      frequency: habit.frequency,
+      timing,
+      period,
+    });
+
     setIsEditing(true);
     setModalOpen(true);
   };
@@ -148,7 +180,7 @@ const MyHabits = () => {
 
   const handleSubmit = () => {
     if (validateForm()) {
-      mutation.mutate(formData);
+      mutation.mutate({ ...formData }); // Ensure `formData` is correctly structured
     }
   };
 
@@ -197,7 +229,7 @@ const MyHabits = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {habits.map((habit) => (
+              {habits.map((habit: Habit) => (
                 <TableRow key={habit.id}>
                   <TableCell>{habit.name}</TableCell>
                   <TableCell>{habit.description}</TableCell>

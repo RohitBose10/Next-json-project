@@ -9,7 +9,7 @@ import {
   CardContent,
 } from "@mui/material";
 import { styled } from "@mui/system";
-import SignupModal from "./auth/registration/page";
+import { useRouter } from "next/navigation";
 
 const HeroSection = styled("div")({
   background: "linear-gradient(135deg, #6A0DAD, #FF1493)",
@@ -21,8 +21,8 @@ const HeroSection = styled("div")({
 });
 
 const FeatureCard = styled(Card)({
-  background: "#fff", // Assuming you want a white background, remove if unnecessary
-  boxShadow: 4,
+  backgroundColor: "#fff",
+  boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
   borderRadius: "16px",
   transition: "transform 0.3s ease",
   fontFamily: "'Roboto', sans-serif",
@@ -34,25 +34,25 @@ const FeatureCard = styled(Card)({
 const StyledTypography = styled(Typography)({
   fontFamily: "'Roboto', sans-serif",
   fontWeight: 400,
-  color: "#000", // Default text color
+  color: "#000",
 });
 
 export default function Homepage() {
-  const [isModalOpen, setIsModalOpen] = useState(false); // State to control the modal
-  const [userId, setUserId] = useState(null); // State to track if user is logged in
+  const [userId, setUserId] = useState<string | null>(null);
+
+  const router = useRouter();
 
   useEffect(() => {
-    // Get userId from localStorage on page load
     const storedUserId = localStorage.getItem("userId");
     setUserId(storedUserId);
   }, []);
 
-  const handleOpenModal = () => setIsModalOpen(true); // Open modal
-  const handleCloseModal = () => setIsModalOpen(false); // Close modal
+  const handleSignUpRedirect = () => {
+    router.push("/registration");
+  };
 
   return (
     <Container maxWidth="lg" className="py-10">
-      {/* Hero Section */}
       <HeroSection>
         <Typography variant="h2" gutterBottom style={{ fontWeight: 600 }}>
           Track Your Habits, Transform Your Life
@@ -62,7 +62,6 @@ export default function Homepage() {
           ease.
         </Typography>
         <div className="mt-6">
-          {/* Only show the button if user is not logged in */}
           {!userId && (
             <Button
               variant="contained"
@@ -71,7 +70,7 @@ export default function Homepage() {
                 fontWeight: 500,
               }}
               size="large"
-              onClick={handleOpenModal} // Open modal on click
+              onClick={handleSignUpRedirect}
             >
               Get Started
             </Button>
@@ -79,7 +78,6 @@ export default function Homepage() {
         </div>
       </HeroSection>
 
-      {/* Features Section */}
       <section className="my-16">
         <StyledTypography
           variant="h4"
@@ -90,7 +88,6 @@ export default function Homepage() {
           Why Choose Our Habit Tracker?
         </StyledTypography>
         <Grid container spacing={4} className="mt-6">
-          {/* Feature Cards */}
           <Grid item xs={12} md={4}>
             <FeatureCard>
               <CardContent>
@@ -144,7 +141,6 @@ export default function Homepage() {
         </Grid>
       </section>
 
-      {/* Call to Action Section */}
       <section
         className="text-center py-12"
         style={{
@@ -167,7 +163,6 @@ export default function Homepage() {
             ? "We’re thrilled to have you on board! Keep tracking and achieving your goals with ease."
             : "Join thousands of users transforming their lives with our Habit Tracker."}
         </Typography>
-        {/* Only show the button if user is not logged in */}
         {!userId && (
           <Button
             variant="contained"
@@ -176,15 +171,12 @@ export default function Homepage() {
               fontWeight: 500,
             }}
             size="large"
-            onClick={handleOpenModal} // Open modal on click
+            onClick={handleSignUpRedirect}
           >
             Sign Up Now
           </Button>
         )}
       </section>
-
-      {/* Signup Modal */}
-      <SignupModal isOpen={isModalOpen} onClose={handleCloseModal} />
     </Container>
   );
 }

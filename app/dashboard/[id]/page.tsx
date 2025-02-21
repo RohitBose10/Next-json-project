@@ -53,15 +53,23 @@ const StyledTypography = styled(Typography)(() => ({
 
 export default function DashboardPage() {
   const { id } = useParams();
+  
   const [completedToday, setCompletedToday] = useState<string[]>([]);
 
-  const { data: userHabits = [], isLoading, isError } = useQuery({
+  const {
+    data: userHabits = [],
+    isLoading,
+    isError,
+  } = useQuery<Habit[]>({
     queryKey: ["userHabits", id],
     queryFn: async () => {
       const response = await axios.get("http://localhost:1000/userHabits");
+      
       return response.data.filter((habit: Habit) => habit.userId === id);
+     
     },
     enabled: !!id,
+    
   });
 
   const handleMarkDone = (habitId: string) => {
@@ -77,6 +85,7 @@ export default function DashboardPage() {
       });
     }
   };
+  
 
   if (isLoading) {
     return (
@@ -115,7 +124,11 @@ export default function DashboardPage() {
               <StyledTypography variant="h5" gutterBottom>
                 Total Habits
               </StyledTypography>
-              <Typography variant="h3" color="primary" style={{ fontWeight: 600 }}>
+              <Typography
+                variant="h3"
+                color="primary"
+                style={{ fontWeight: 600 }}
+              >
                 {userHabits.length}
               </Typography>
             </CardContent>
@@ -127,7 +140,11 @@ export default function DashboardPage() {
               <StyledTypography variant="h5" gutterBottom>
                 Habits Completed Today
               </StyledTypography>
-              <Typography variant="h3" color="error" style={{ fontWeight: 600 }}>
+              <Typography
+                variant="h3"
+                color="error"
+                style={{ fontWeight: 600 }}
+              >
                 {completedToday.length}
               </Typography>
             </CardContent>
@@ -139,7 +156,11 @@ export default function DashboardPage() {
               <StyledTypography variant="h5" gutterBottom>
                 Pending Habits
               </StyledTypography>
-              <Typography variant="h3" color="secondary" style={{ fontWeight: 600 }}>
+              <Typography
+                variant="h3"
+                color="secondary"
+                style={{ fontWeight: 600 }}
+              >
                 {userHabits.length - completedToday.length}
               </Typography>
             </CardContent>
@@ -157,11 +178,15 @@ export default function DashboardPage() {
         </StyledTypography>
         {userHabits.length > 0 ? (
           <Grid container spacing={4}>
-            {userHabits.map((habit) => (
+            {userHabits.map((habit: Habit) => (
               <Grid item xs={12} md={6} lg={4} key={habit.id}>
                 <StyledCard>
                   <CardContent>
-                    <Typography variant="h6" color="primary" style={{ fontWeight: 500 }}>
+                    <Typography
+                      variant="h6"
+                      color="primary"
+                      style={{ fontWeight: 500 }}
+                    >
                       {habit.name}
                     </Typography>
                     <Typography variant="body2" color="textSecondary">
@@ -179,13 +204,19 @@ export default function DashboardPage() {
                   <CardActions>
                     <Button
                       variant="contained"
-                      color={completedToday.includes(habit.id) ? "success" : "primary"}
+                      color={
+                        completedToday.includes(habit.id)
+                          ? "success"
+                          : "primary"
+                      }
                       sx={{ mb: 1 }}
                       onClick={() => handleMarkDone(habit.id)}
                       disabled={completedToday.includes(habit.id)}
                       style={{ fontWeight: 500 }}
                     >
-                      {completedToday.includes(habit.id) ? "Done" : "Mark as Done"}
+                      {completedToday.includes(habit.id)
+                        ? "Done"
+                        : "Mark as Done"}
                     </Button>
                   </CardActions>
                 </StyledCard>

@@ -5,8 +5,6 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import {
   Avatar,
-  Card,
-  CardContent,
   Typography,
   CircularProgress,
   Container,
@@ -16,42 +14,35 @@ import {
   Box,
   TextField,
   Button,
+  Paper,
 } from "@mui/material";
 import { styled } from "@mui/system";
 import EditIcon from "@mui/icons-material/Edit";
 import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css"; // Import toast styles
+import "react-toastify/dist/ReactToastify.css";
 
-// Hero Section Styling
+// Styled Components
 const HeroSection = styled("div")({
   background: "linear-gradient(135deg, #6A0DAD, #FF1493)",
   color: "white",
   textAlign: "center",
-  padding: "4rem 2rem !important",
+  padding: "4rem 2rem",
   borderRadius: "16px",
   boxShadow: "0 4px 20px rgba(0, 0, 0, 0.2)",
   position: "relative",
 });
 
-// Styled Typography
 const StyledHeading = styled(Typography)({
   fontWeight: "bold",
   fontSize: "2.5rem",
   color: "#FFFFFF",
 });
 
-const StyledSubHeading = styled(Typography)({
-  fontWeight: "300",
-  fontSize: "1.25rem",
-  color: "rgba(255, 255, 255, 0.9)",
-  fontStyle: "italic",
-});
-
 const SectionTitle = styled(Typography)({
   fontWeight: "bold",
   fontSize: "1.75rem",
   color: "#1F2937",
-  marginBottom: "16px", // Adjusted to match theme spacing
+  marginBottom: "16px",
 });
 
 const LabelText = styled(Typography)({
@@ -65,20 +56,25 @@ const ValueText = styled(Typography)({
   color: "#4B5563",
 });
 
-// Fetch user data with error handling
-const fetchUserData = async (id) => {
-  try {
-    const response = await axios.get("http://localhost:1000/users");
-    const user = response.data.find((user) => user.id === id);
-    if (!user) throw new Error("User not found");
-    return user;
-  } catch {
-    throw new Error("Failed to fetch user data");
-  }
+// User Interface
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  mobileNumber: string;
+  profilePicture: string;
+}
+
+// Fetch user data
+const fetchUserData = async (id: string): Promise<User> => {
+  const response = await axios.get("http://localhost:1000/users");
+  const user = response.data.find((user: User) => user.id === id);
+  if (!user) throw new Error("User not found");
+  return user;
 };
 
 // Update user data
-const updateUser = async (updatedUser) => {
+const updateUser = async (updatedUser: User): Promise<void> => {
   await axios.put(`http://localhost:1000/users/${updatedUser.id}`, updatedUser);
 };
 
@@ -86,7 +82,6 @@ export default function ProfilePage() {
   const { id } = useParams();
   const queryClient = useQueryClient();
 
-  // Ensure query is called unconditionally
   const {
     data: userData,
     isLoading,
@@ -94,20 +89,21 @@ export default function ProfilePage() {
     error,
   } = useQuery({
     queryKey: ["user", id],
-    queryFn: () => fetchUserData(id),
+    queryFn: () => fetchUserData(typeof id === "string" ? id : ""),
     enabled: !!id,
   });
 
   const mutation = useMutation({
     mutationFn: updateUser,
     onSuccess: () => {
-      queryClient.invalidateQueries(["user", id]);
-      toast.success("Profile updated successfully!"); // Trigger success toast
+      queryClient.invalidateQueries({ queryKey: ["user", id] });
+      toast.success("Profile updated successfully!");
     },
   });
 
   const [isDrawerOpen, setDrawerOpen] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<User>({
+    id: "",
     name: "",
     email: "",
     mobileNumber: "",
@@ -122,8 +118,10 @@ export default function ProfilePage() {
   };
 
   const handleSaveChanges = () => {
-    mutation.mutate(formData);
-    setDrawerOpen(false);
+    if (formData.id) {
+      mutation.mutate(formData);
+      setDrawerOpen(false);
+    }
   };
 
   if (isLoading) {
@@ -148,8 +146,7 @@ export default function ProfilePage() {
 
   return (
     <Container maxWidth="lg" className="py-10">
-      <ToastContainer position="top-right" autoClose={3000} />{" "}
-      {/* Toast Container */}
+      <ToastContainer position="top-right" autoClose={3000} />
       <HeroSection>
         <Box sx={{ position: "relative", display: "inline-block" }}>
           <Avatar
@@ -176,151 +173,250 @@ export default function ProfilePage() {
             <EditIcon color="primary" />
           </IconButton>
         </Box>
-
         <StyledHeading>Welcome, {userData.name}!</StyledHeading>
-        <StyledSubHeading>
-          {"Your potential is endless. Keep striving!"}
-        </StyledSubHeading>
       </HeroSection>
-      {/* User Details Section */}
-      <section className="my-12">
-        <SectionTitle sx={{ color: "#A445B2", textAlign: "center" }}>
-          Contact Details
-        </SectionTitle>
-        <Grid container spacing={3} justifyContent="center" alignItems="center">
-          <Grid item xs={12} md={6}>
-            <Card className="shadow-md">
-              <CardContent>
-                <LabelText>Email</LabelText>
-                <ValueText>{userData.email}</ValueText>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <Card className="shadow-md">
-              <CardContent>
-                <LabelText>Mobile Number</LabelText>
-                <ValueText>{userData.mobileNumber}</ValueText>
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
-      </section>
-      {/* Motivational Section */}
-      <section
-        className="mt-12 p-6 shadow-lg"
-        style={{
-          background: "linear-gradient(135deg, #6A0DAD, #FF1493)",
+
+      <Paper
+        elevation={3}
+        sx={{
+          p: 4,
+          mt: 4,
           borderRadius: "16px",
+          background: "linear-gradient(135deg, #6A0DAD, #FF1493)",
+          backdropFilter: "blur(10px)",
+          boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.15)",
         }}
       >
-        <SectionTitle style={{ color: "white", textAlign: "center" }}>
-          Stay Inspired!
-        </SectionTitle>
-        <Typography
-          variant="body1"
-          style={{ color: "rgba(255, 255, 255, 0.9)", textAlign: "center" }}
+        <SectionTitle
+          sx={{
+            fontWeight: "bold",
+            fontSize: "1.8rem",
+            textAlign: "center",
+            color: "white", // Changed to white
+            textShadow: "0px 2px 10px rgba(0, 0, 0, 0.3)", // Stronger contrast
+          }}
         >
-          Keep setting and achieving goals. Every step forward counts toward a
-          brighter future!
-        </Typography>
-      </section>
+          User Information
+        </SectionTitle>
+        <Grid container spacing={3} sx={{ mt: 2 }}>
+          <Grid item xs={12} sm={6} display="flex" alignItems="center">
+            <Avatar
+              sx={{
+                bgcolor: "rgba(255, 255, 255, 0.2)",
+                width: 30,
+                height: 30,
+                mr: 2,
+              }}
+            >
+              🧑
+            </Avatar>
+            <Box>
+              <LabelText sx={{ color: "white" }}>Name</LabelText>
+              <ValueText sx={{ color: "white" }}>{userData.name}</ValueText>
+            </Box>
+          </Grid>
+          <Grid item xs={12} sm={6} display="flex" alignItems="center">
+            <Avatar
+              sx={{
+                bgcolor: "rgba(255, 255, 255, 0.2)",
+                width: 30,
+                height: 30,
+                mr: 2,
+              }}
+            >
+              📧
+            </Avatar>
+            <Box>
+              <LabelText sx={{ color: "white" }}>Email</LabelText>
+              <ValueText sx={{ color: "white" }}>{userData.email}</ValueText>
+            </Box>
+          </Grid>
+          <Grid item xs={12} sm={6} display="flex" alignItems="center">
+            <Avatar
+              sx={{
+                bgcolor: "rgba(255, 255, 255, 0.2)",
+                width: 30,
+                height: 30,
+                mr: 2,
+              }}
+            >
+              📞
+            </Avatar>
+            <Box>
+              <LabelText sx={{ color: "white" }}>Mobile Number</LabelText>
+              <ValueText sx={{ color: "white" }}>
+                {userData.mobileNumber}
+              </ValueText>
+            </Box>
+          </Grid>
+        </Grid>
+      </Paper>
+
+      {/* Edit Drawer */}
       <Drawer
         anchor="right"
         open={isDrawerOpen}
         onClose={() => setDrawerOpen(false)}
         sx={{
           "& .MuiDrawer-paper": {
-            width: {
-              xs: "100%",
-              sm: "50%",
-              md: "35%",
-              lg: "25%",
-            },
+            width: "35%",
+            background: "rgba(255, 255, 255, 0.15)",
+            backdropFilter: "blur(10px)",
+            borderRadius: "16px 0 0 16px",
+            boxShadow: "0 4px 20px rgba(0, 0, 0, 0.2)",
+            padding: "24px",
           },
         }}
       >
-        <Box sx={{ width: "100%", p: 3 }}>
+        <Box sx={{ width: "100%", textAlign: "center", p: 3 }}>
           <Typography
-            variant="h6"
+            variant="h5"
             gutterBottom
-            sx={{ textAlign: "center", mb: 3 }}
+            sx={{
+              fontWeight: "bold",
+              color: "white", // Changed to white
+              textShadow: "0px 2px 10px rgba(0, 0, 0, 0.3)", // Stronger contrast
+            }}
           >
             Edit Profile
           </Typography>
-          <Box sx={{ textAlign: "center", position: "relative" }}>
+          <Box sx={{ position: "relative", display: "inline-block" }}>
             <Avatar
               alt={formData.name}
               src={formData.profilePicture}
               sx={{
-                width: 120,
-                height: 120,
-                margin: "0 auto 1rem",
+                width: 130,
+                height: 130,
+                margin: "0 auto",
+                cursor: "pointer",
+                border: "4px solid white",
+                boxShadow: "0px 4px 15px rgba(0, 0, 0, 0.3)",
+                transition: "transform 0.3s ease-in-out",
+                "&:hover": {
+                  transform: "scale(1.1)",
+                },
+              }}
+              onClick={() => document.getElementById("upload-image")?.click()}
+            />
+            <Box
+              sx={{
+                position: "absolute",
+                bottom: 10,
+                right: 10,
+                background: "#FFF",
+                borderRadius: "50%",
+                boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.3)",
+                p: 1,
                 cursor: "pointer",
               }}
-              onClick={() => document.getElementById("upload-image").click()}
-            />
-            <input
-              id="upload-image"
-              type="file"
-              accept="image/*"
-              style={{ display: "none" }}
-              onChange={(e) => {
-                const file = e.target.files[0];
-                if (file && file.type.startsWith("image/")) {
-                  const reader = new FileReader();
-                  reader.onload = () => {
-                    setFormData({ ...formData, profilePicture: reader.result });
-                  };
-                  reader.readAsDataURL(file);
-                } else {
-                  toast.error("Please upload a valid image file.");
-                }
+              onClick={() => document.getElementById("upload-image")?.click()}
+            >
+              <EditIcon color="primary" />
+            </Box>
+          </Box>
+          <input
+            id="upload-image"
+            type="file"
+            accept="image/*"
+            style={{ display: "none" }}
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file && file.type.startsWith("image/")) {
+                const reader = new FileReader();
+                reader.onload = () => {
+                  if (reader.result) {
+                    setFormData({
+                      ...formData,
+                      profilePicture: reader.result as string,
+                    });
+                  }
+                };
+                reader.readAsDataURL(file);
+              } else {
+                toast.error("Please upload a valid image file.");
+              }
+            }}
+          />
+          <Box sx={{ mt: 3 }}>
+            <TextField
+              label="Name"
+              value={formData.name}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
+              fullWidth
+              margin="normal"
+              sx={{
+                "& .MuiInputLabel-root": {
+                  color: "white", // Labels changed to white
+                },
+                "& .MuiInputBase-root": {
+                  borderRadius: "12px",
+                  background: "rgba(255, 255, 255, 0.5)",
+                  backdropFilter: "blur(5px)",
+                  boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                },
               }}
             />
+            <TextField
+              label="Email"
+              value={formData.email}
+              onChange={(e) =>
+                setFormData({ ...formData, email: e.target.value })
+              }
+              fullWidth
+              margin="normal"
+              sx={{
+                "& .MuiInputLabel-root": {
+                  color: "white", // Labels changed to white
+                },
+                "& .MuiInputBase-root": {
+                  borderRadius: "12px",
+                  background: "rgba(255, 255, 255, 0.5)",
+                  backdropFilter: "blur(5px)",
+                  boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                },
+              }}
+            />
+            <TextField
+              label="Mobile Number"
+              value={formData.mobileNumber}
+              onChange={(e) =>
+                setFormData({ ...formData, mobileNumber: e.target.value })
+              }
+              fullWidth
+              margin="normal"
+              sx={{
+                "& .MuiInputLabel-root": {
+                  color: "white", // Labels changed to white
+                },
+                "& .MuiInputBase-root": {
+                  borderRadius: "12px",
+                  background: "rgba(255, 255, 255, 0.5)",
+                  backdropFilter: "blur(5px)",
+                  boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                },
+              }}
+            />
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleSaveChanges}
+              fullWidth
+              sx={{
+                mt: 3,
+                py: 1.5,
+                borderRadius: "12px",
+                background: "linear-gradient(135deg, #6A0DAD, #FF1493)",
+                boxShadow: "0px 4px 15px rgba(255, 20, 147, 0.4)",
+                "&:hover": {
+                  background: "linear-gradient(135deg, #5A0DA0, #E01080)",
+                },
+              }}
+            >
+              Save Changes
+            </Button>
           </Box>
-          <TextField
-            label="Name"
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            fullWidth
-            margin="normal"
-          />
-          <TextField
-            label="Email"
-            value={formData.email}
-            onChange={(e) =>
-              setFormData({ ...formData, email: e.target.value })
-            }
-            fullWidth
-            margin="normal"
-          />
-          <TextField
-            label="Mobile Number"
-            value={formData.mobileNumber}
-            onChange={(e) =>
-              setFormData({ ...formData, mobileNumber: e.target.value })
-            }
-            fullWidth
-            margin="normal"
-          />
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleSaveChanges}
-            fullWidth
-            sx={{ mt: 2 }}
-          >
-            Save Changes
-          </Button>
-          <Button
-            variant="outlined"
-            onClick={() => setDrawerOpen(false)}
-            fullWidth
-            sx={{ mt: 1 }}
-          >
-            Cancel
-          </Button>
         </Box>
       </Drawer>
     </Container>

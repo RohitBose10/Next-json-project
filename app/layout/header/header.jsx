@@ -1,36 +1,30 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import Link from "next/link";
-
 import Avatar from "@mui/material/Avatar";
 import { Button, IconButton, Menu, MenuItem } from "@mui/material";
 import LoginIcon from "@mui/icons-material/Login";
 import HowToRegIcon from "@mui/icons-material/HowToReg";
 import LogoutIcon from "@mui/icons-material/Logout";
 import MenuIcon from "@mui/icons-material/Menu";
-import LoginModal from "@/app/auth/login/page";
-import SignupModal from "@/app/auth/registration/page";
-import { ToastContainer, toast } from "react-toastify"; // Import toastify
-import "react-toastify/dist/ReactToastify.css"; // Import the styles for toastify
-import Image from 'next/image'; // Import Image component for optimization
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 const Navbar = () => {
-  const [showLogin, setShowLogin] = useState(false);
-  const [showSignup, setShowSignup] = useState(false);
   const [userId, setUserId] = useState(null);
   const [profilePicture, setProfilePicture] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
+  const router = useRouter();
 
-  // Check local storage for userId and profilePicture
   useEffect(() => {
-    const storedUserId = localStorage.getItem("userId");
-    const storedProfilePicture = localStorage.getItem("profilePicture");
+    if (typeof window !== "undefined") {
+      const storedUserId = localStorage.getItem("userId");
+      const storedProfilePicture = localStorage.getItem("profilePicture");
 
-    if (storedUserId) {
       setUserId(storedUserId);
-    }
-
-    if (storedProfilePicture) {
       setProfilePicture(storedProfilePicture);
     }
   }, []);
@@ -40,10 +34,10 @@ const Navbar = () => {
     localStorage.removeItem("profilePicture");
     setUserId(null);
     setProfilePicture(null);
-    toast.success("Successfully logged out!"); // Show success toast on logout
+    toast.success("Successfully logged out!");
     setTimeout(() => {
-      window.location.href = "/"; // Redirect after toast
-    }, 1000); // Delay redirect by 1 second
+      router.push("/");
+    }, 1000);
   };
 
   const handleMenuOpen = (event) => {
@@ -63,79 +57,77 @@ const Navbar = () => {
               href="/"
               className="flex items-center text-white text-2xl font-bold"
             >
-              {/* Using Image component for optimized image */}
               <Image
                 src="/assets/images/logo.png"
                 alt="Habit Tracker Logo"
-                width={120} // Set appropriate width for the logo
-                height={120} // Set appropriate height for the logo
+                width={120}
+                height={120}
                 className="mr-2 rounded-md border-2 border-white"
               />
             </Link>
           </div>
 
-          {/* Desktop Navbar */}
+          {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-6">
             {userId ? (
               <>
                 <Link
                   href={`/dashboard/${userId}`}
-                  className="text-white hover:underline decoration-pink-300 decoration-2 underline-offset-4 text-lg font-medium"
+                  className="text-white hover:underline text-lg font-medium"
                 >
                   Dashboard
                 </Link>
                 <Link
                   href={`/myhabits/${userId}`}
-                  className="text-white hover:underline decoration-pink-300 decoration-2 underline-offset-4 text-lg font-medium"
+                  className="text-white hover:underline text-lg font-medium"
                 >
                   My Habits
                 </Link>
-                {profilePicture ? (
-                  <Link href={`/profile/${userId}`}>
+                <Link href={`/profile/${userId}`}>
+                  {profilePicture ? (
                     <Avatar
                       src={profilePicture}
                       alt="Profile Picture"
                       className="cursor-pointer"
                       sx={{ width: 40, height: 40 }}
                     />
-                  </Link>
-                ) : (
-                  <Link
-                    href={`/profile/${userId}`}
-                    className="text-white hover:underline decoration-pink-300 decoration-2 underline-offset-4 text-lg font-medium"
-                  >
-                    Profile
-                  </Link>
-                )}
+                  ) : (
+                    <span className="text-white hover:underline text-lg font-medium">
+                      Profile
+                    </span>
+                  )}
+                </Link>
                 <Button
                   onClick={handleLogout}
                   startIcon={<LogoutIcon />}
-                  className="bg-white text-purple-700 hover:bg-red-500 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition duration-300"
+                  className="bg-white text-purple-700 hover:bg-red-500 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition"
                 >
                   Logout
                 </Button>
               </>
             ) : (
               <>
-                <Button
-                  onClick={() => setShowLogin(true)}
-                  startIcon={<LoginIcon />}
-                  className="bg-white text-purple-700 hover:bg-green-600 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition duration-300"
-                >
-                  Login
-                </Button>
-                <Button
-                  onClick={() => setShowSignup(true)}
-                  startIcon={<HowToRegIcon />}
-                  className="bg-white text-purple-700 hover:bg-blue-600 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition duration-300"
-                >
-                  Sign Up
-                </Button>
+                <Link href="/login">
+                  <Button
+                    startIcon={<LoginIcon />}
+                    className="bg-white text-purple-700 hover:bg-green-600 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition"
+                  >
+                    Login
+                  </Button>
+                </Link>
+                <Link href="/registration">
+                  <Button
+                    startIcon={<HowToRegIcon />}
+                    className="bg-white text-purple-700 hover:bg-blue-600 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition"
+                  >
+                    Sign Up
+                  </Button>
+                </Link>
               </>
             )}
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* Mobile Menu */}
           <div className="md:hidden flex items-center">
             <IconButton color="inherit" onClick={handleMenuOpen}>
               <MenuIcon />
@@ -145,34 +137,37 @@ const Navbar = () => {
               open={Boolean(anchorEl)}
               onClose={handleMenuClose}
             >
-              {userId ? (
-                <>
-                  <MenuItem onClick={handleMenuClose}>
-                    <Link href={`/dashboard/${userId}`}>Dashboard</Link>
-                  </MenuItem>
-                  <MenuItem onClick={handleMenuClose}>
-                    <Link href={`/myhabits/${userId}`}>My Habits</Link>
-                  </MenuItem>
-                  <MenuItem onClick={handleLogout}>Logout</MenuItem>
-                </>
-              ) : (
-                <>
-                  <MenuItem onClick={() => setShowLogin(true)}>Login</MenuItem>
-                  <MenuItem onClick={() => setShowSignup(true)}>
-                    Sign Up
-                  </MenuItem>
-                </>
-              )}
+              {userId
+                ? [
+                    <MenuItem key="dashboard" onClick={handleMenuClose}>
+                      <Link href={`/dashboard/${userId}`} className="w-full">
+                        Dashboard
+                      </Link>
+                    </MenuItem>,
+                    <MenuItem key="myhabits" onClick={handleMenuClose}>
+                      <Link href={`/myhabits/${userId}`} className="w-full">
+                        My Habits
+                      </Link>
+                    </MenuItem>,
+                    <MenuItem key="logout" onClick={handleLogout}>
+                      Logout
+                    </MenuItem>,
+                  ]
+                : [
+                    <MenuItem key="login" onClick={() => router.push("/login")}>
+                      Login
+                    </MenuItem>,
+                    <MenuItem
+                      key="signup"
+                      onClick={() => router.push("/registration")}
+                    >
+                      Sign Up
+                    </MenuItem>,
+                  ]}
             </Menu>
           </div>
         </div>
       </div>
-
-      {/* Modals */}
-      <LoginModal isOpen={showLogin} onClose={() => setShowLogin(false)} />
-      <SignupModal isOpen={showSignup} onClose={() => setShowSignup(false)} />
-
-      {/* Add ToastContainer for toasts */}
       <ToastContainer />
     </nav>
   );

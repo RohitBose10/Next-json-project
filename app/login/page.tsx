@@ -1,0 +1,151 @@
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import axios from "axios";
+import { toast } from "react-toastify";
+import { useQuery } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { FaUserCircle } from "react-icons/fa"; // Added user icon
+
+// Define the expected user type
+interface User {
+  id: string;
+  email: string;
+  password: string;
+  profilePicture?: string;
+}
+
+export default function LoginPage() {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  // UseQuery with explicit User[] type
+  const {
+    data: users = [],
+    error: fetchError,
+    isLoading,
+  } = useQuery<User[]>({
+    queryKey: ["users"],
+    queryFn: async () => {
+      const response = await axios.get<User[]>("http://localhost:1000/users");
+
+      return response.data;
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (isLoading) {
+      toast.info("Please wait...");
+      return;
+    }
+    if (fetchError) {
+      toast.error("Unable to fetch users. Please try again later.");
+      return;
+    }
+
+    const user = users.find(
+      (u: User) => u.email === email && u.password === password
+    );
+
+    if (user?.id) {
+      toast.success("Login successful!");
+
+      localStorage.setItem("userId", user.id);
+
+      if (user.profilePicture) {
+        localStorage.setItem("profilePicture", user.profilePicture);
+      }
+
+      setTimeout(() => {
+        router.push(`/dashboard/${user.id}`);
+      }, 500);
+    } else {
+      toast.error("Invalid email or password. Please try again.");
+    }
+  };
+
+  return (
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="bg-white/10 backdrop-blur-lg p-8 rounded-2xl w-full max-w-md shadow-2xl  bg-gradient-to-br from-purple-600 to-pink-500">
+        {/* User Icon */}
+        <div className="flex justify-center">
+          <FaUserCircle className="text-white text-6xl mb-4" />
+        </div>
+
+        <h2 className="text-3xl font-bold text-white text-center mb-6">
+          Login
+        </h2>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-white mb-1">
+              Email Address
+            </label>
+            <input
+              type="email"
+              placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="block w-full p-3 border border-gray-300 rounded-lg bg-white/20 text-white placeholder-gray-200 focus:ring-2 focus:ring-white focus:outline-none"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-white mb-1">
+              Password
+            </label>
+            <input
+              type="password"
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="block w-full p-3 border border-gray-300 rounded-lg bg-white/20 text-white placeholder-gray-200 focus:ring-2 focus:ring-white focus:outline-none"
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="bg-white text-purple-700 px-4 py-3 rounded-lg w-full font-semibold text-lg hover:bg-purple-600 hover:text-white transition shadow-lg"
+            disabled={isLoading}
+          >
+            {isLoading ? "Logging in..." : "Login"}
+          </button>
+        </form>
+
+        <p className="text-xs text-gray-200 text-center mt-4">
+          By logging in, you agree to our
+          <Link
+            href="/terms"
+            className="text-white font-semibold hover:underline mx-1"
+          >
+            Terms and Conditions
+          </Link>
+          and
+          <Link
+            href="/privacy"
+            className="text-white font-semibold hover:underline mx-1"
+          >
+            Privacy Policy
+          </Link>
+          .
+        </p>
+
+        <p className="text-sm text-white text-center mt-6">
+          Don’t have an account?
+          <Link
+            href="/registration"
+            className="text-white font-bold hover:underline ml-1"
+          >
+            Sign Up
+          </Link>
+        </p>
+      </div>
+    </div>
+  );
+}

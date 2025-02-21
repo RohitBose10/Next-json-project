@@ -7,15 +7,15 @@ import Wrapper from "@/app/layout/wrapper/wrapper";
 import CustomThemeProvider from "@/utils/themeprovider/theme.provider";
 import { ToastContainer } from "react-toastify";
 
+// Ensure font paths are correct
 const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
+  src: "/fonts/GeistVF.woff", // Adjust path based on actual location
   variable: "--font-geist-sans",
-  weight: "100 900",
 });
+
 const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
+  src: "/fonts/GeistMonoVF.woff", // Adjust path based on actual location
   variable: "--font-geist-mono",
-  weight: "100 900",
 });
 
 export const metadata: Metadata = {
@@ -25,18 +25,19 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ToastContainer />
         <QueryProvider>
           <CustomThemeProvider>
-            <Wrapper>{children}</Wrapper>
+            <ToastContainer />
+            <Wrapper>
+              {children}
+              
+            </Wrapper>
           </CustomThemeProvider>
         </QueryProvider>
       </body>
