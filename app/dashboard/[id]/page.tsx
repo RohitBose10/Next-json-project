@@ -18,6 +18,7 @@ import { styled } from "@mui/system";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+/*************  ✨ Codeium Command 🌟  *************/
 interface Habit {
   id: string;
   userId: string;
@@ -25,7 +26,9 @@ interface Habit {
   description: string;
   frequency: string;
   timing: string;
+  period: string;
 }
+/******  b32cdc6b-0884-4871-8bf7-f31ef0c4f6b5  *******/
 
 const HeroSection = styled("div")({
   background: "linear-gradient(135deg, #6A0DAD, #FF1493)",

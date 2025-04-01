@@ -5,32 +5,25 @@ import Link from "next/link";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useQuery } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
-import { FaUserCircle } from "react-icons/fa"; // Added user icon
+import { FaUserCircle } from "react-icons/fa";
 
-// Define the expected user type
 interface User {
   id: string;
   email: string;
   password: string;
-  profilePicture?: string;
+  profilePicture?: string | null;
+  name: string;
+  mobileNumber: string;
 }
 
 export default function LoginPage() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  // UseQuery with explicit User[] type
-  const {
-    data: users = [],
-    error: fetchError,
-    isLoading,
-  } = useQuery<User[]>({
+  const { data: users = [], error: fetchError, isLoading } = useQuery<User[]>({
     queryKey: ["users"],
     queryFn: async () => {
       const response = await axios.get<User[]>("http://localhost:1000/users");
-
       return response.data;
     },
   });
@@ -55,14 +48,11 @@ export default function LoginPage() {
       toast.success("Login successful!");
 
       localStorage.setItem("userId", user.id);
-
       if (user.profilePicture) {
         localStorage.setItem("profilePicture", user.profilePicture);
       }
 
-      setTimeout(() => {
-        router.push(`/dashboard/${user.id}`);
-      }, 500);
+      window.location.href = `/dashboard/${user.id}`;
     } else {
       toast.error("Invalid email or password. Please try again.");
     }
@@ -70,8 +60,7 @@ export default function LoginPage() {
 
   return (
     <div className="flex items-center justify-center min-h-screen">
-      <div className="bg-white/10 backdrop-blur-lg p-8 rounded-2xl w-full max-w-md shadow-2xl  bg-gradient-to-br from-purple-600 to-pink-500">
-        {/* User Icon */}
+      <div className="bg-white/10 backdrop-blur-lg p-8 rounded-2xl w-full max-w-md shadow-2xl bg-gradient-to-br from-purple-600 to-pink-500">
         <div className="flex justify-center">
           <FaUserCircle className="text-white text-6xl mb-4" />
         </div>
@@ -120,28 +109,18 @@ export default function LoginPage() {
 
         <p className="text-xs text-gray-200 text-center mt-4">
           By logging in, you agree to our
-          <Link
-            href="/terms"
-            className="text-white font-semibold hover:underline mx-1"
-          >
-            Terms and Conditions
+          <Link href="/terms" className="text-white font-semibold hover:underline mx-1">
+            Terms
           </Link>
           and
-          <Link
-            href="/privacy"
-            className="text-white font-semibold hover:underline mx-1"
-          >
+          <Link href="/privacy" className="text-white font-semibold hover:underline mx-1">
             Privacy Policy
           </Link>
-          .
         </p>
 
         <p className="text-sm text-white text-center mt-6">
-          Don’t have an account?
-          <Link
-            href="/registration"
-            className="text-white font-bold hover:underline ml-1"
-          >
+          Don&apos;t have an account?
+          <Link href="/registration" className="text-white font-bold hover:underline ml-1">
             Sign Up
           </Link>
         </p>
