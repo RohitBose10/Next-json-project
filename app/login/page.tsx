@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 import { useQuery } from "@tanstack/react-query";
 import { FaUserCircle } from "react-icons/fa";
 
+
 interface User {
   id: string;
   email: string;
@@ -20,41 +21,44 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const { data: users = [], error: fetchError, isLoading } = useQuery<User[]>({
+  const { data: users = [], isLoading, error } = useQuery<User[]>({
     queryKey: ["users"],
     queryFn: async () => {
-      const response = await axios.get<User[]>("http://localhost:1000/users");
-      return response.data;
+      try {
+        const response = await axios.get<User[]>("http://localhost:1000/users");
+        return response.data;
+      } catch (err) {
+        toast.error("Failed to fetch users");
+        throw err;
+      }
     },
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
+  
     if (isLoading) {
-      toast.info("Please wait...");
+      toast.info("Loading user data...");
       return;
     }
-    if (fetchError) {
-      toast.error("Unable to fetch users. Please try again later.");
+  
+    if (error) {
+      toast.error("Network error. Please try again later.");
       return;
     }
-
-    const user = users.find(
-      (u: User) => u.email === email && u.password === password
-    );
-
-    if (user?.id) {
+  
+    const user = users.find((u) => u.email === email && u.password === password);
+  
+    if (user) {
       toast.success("Login successful!");
-
       localStorage.setItem("userId", user.id);
       if (user.profilePicture) {
         localStorage.setItem("profilePicture", user.profilePicture);
       }
-
+      // Force full page reload after navigation
       window.location.href = `/dashboard/${user.id}`;
     } else {
-      toast.error("Invalid email or password. Please try again.");
+      toast.error("Invalid email or password");
     }
   };
 
@@ -65,16 +69,15 @@ export default function LoginPage() {
           <FaUserCircle className="text-white text-6xl mb-4" />
         </div>
 
-        <h2 className="text-3xl font-bold text-white text-center mb-6">
-          Login
-        </h2>
+        <h2 className="text-3xl font-bold text-white text-center mb-6">Login</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-white mb-1">
+            <label htmlFor="email" className="block text-sm font-medium text-white mb-1">
               Email Address
             </label>
             <input
+              id="email"
               type="email"
               placeholder="Enter your email"
               value={email}
@@ -85,10 +88,11 @@ export default function LoginPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-white mb-1">
+            <label htmlFor="password" className="block text-sm font-medium text-white mb-1">
               Password
             </label>
             <input
+              id="password"
               type="password"
               placeholder="Enter your password"
               value={password}

@@ -7,14 +7,14 @@ import Wrapper from "@/app/layout/wrapper/wrapper";
 import CustomThemeProvider from "@/utils/themeprovider/theme.provider";
 import { ToastContainer } from "react-toastify";
 
-// Ensure font paths are correct
+
 const geistSans = localFont({
-  src: "/fonts/GeistVF.woff", // Adjust path based on actual location
+  src: "/fonts/GeistVF.woff", 
   variable: "--font-geist-sans",
 });
 
 const geistMono = localFont({
-  src: "/fonts/GeistMonoVF.woff", // Adjust path based on actual location
+  src: "/fonts/GeistMonoVF.woff", 
   variable: "--font-geist-mono",
 });
 
@@ -34,10 +34,7 @@ export default function RootLayout({
         <QueryProvider>
           <CustomThemeProvider>
             <ToastContainer />
-            <Wrapper>
-              {children}
-              
-            </Wrapper>
+            <Wrapper>{children}</Wrapper>
           </CustomThemeProvider>
         </QueryProvider>
       </body>
